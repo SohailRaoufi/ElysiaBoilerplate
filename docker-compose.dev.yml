@@ -1,0 +1,33 @@
+services:
+  db:
+    container_name: 'elysia-db'
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env.dev
+    environment:
+      POSTGRES_DB: elysia
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  backend:
+    container_name: elysia-backend
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env.dev
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+    command: sh -c "bun run dev"
+
+volumes:
+  db_data:
